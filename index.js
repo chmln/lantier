@@ -1,7 +1,7 @@
 const requisition = require("requisition");
 
 function Lantier(dbURL, opts) {
-	let session = AuthSession;
+	let session ;
 
 	async function request(dbName, path, method, data) {
 		const req = requisition[method](`${dbURL}/${dbName}/${path}`);
@@ -30,25 +30,27 @@ function Lantier(dbURL, opts) {
 	return {
 		use: dbName => {
 			const dbObj =  Object.create({
-				req: async (path, method, data) => await request(dbName, path, method, data),
+				req: (path, method, data) => request(dbName, path, method, data),
 				get: async docName => (await dbObj.req(docName, "get")).body,
-				insert: async doc => (await dbObj.req("", "post", doc)).body,
-				update: async (doc, docID) => (await dbObj.req(docID, "put", doc)).body,
+				post: async doc => (await dbObj.req("", "post", doc)).body,
+				put: async (doc, docID) => (await dbObj.req(docID, "put", doc)).body,
 				del: async (_id, _rev) => (await dbObj.req(`${_id}?rev=${_rev}`, "delete")).body,
-				query: async queryObj => (await dbObj.req("_find", "post", queryObj)).body.docs
+				query: async queryObj => (await dbObj.req("_find", "post", queryObj)).body.docs,
+				bulkInsert: async docs => (await dbObj.req("_bulk_docs", "post", { docs })).body
 			});
 
 			return dbObj;
 		},
 
 		login: async (name, password) => {
-			const resp = await request(`_session`, "", "post", { name, password });
+			const response = await request(`_session`, "", "post", { name, password });
 
-			session = resp.cookies.AuthSession;
+			session = response.cookies.AuthSession;
 
 			return {
-				AuthSession: resp.cookies.AuthSession,
-				response: resp.body
+				AuthSession: response.cookies.AuthSession,
+				response: response.body,
+				status: response.statusCode
 			};
 		},
 
@@ -56,7 +58,8 @@ function Lantier(dbURL, opts) {
 			session = AuthSession;
 			const response = await request("_session", "", "get");
 
-			console.log(response)
+			if (opts && opts.log)
+				console.log(response)
 
 			return {
 				AuthSession: session,
