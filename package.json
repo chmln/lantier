@@ -1,13 +1,13 @@
 {
   "name": "lantier",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A lightweight couchdb client",
   "main": "index.js",
   "author": "chmln",
   "license": "MIT",
-  "repository" : {
-  	"type" : "git",
-  	"url" : "https://github.com/chmln/lantier.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chmln/lantier.git"
   },
   "dependencies": {
     "requisition": "latest"
