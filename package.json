@@ -1,6 +1,6 @@
 {
   "name": "lantier",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A lightweight couchdb client",
   "main": "index.js",
   "author": "chmln",
