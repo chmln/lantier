@@ -2,12 +2,21 @@ const requisition = require("requisition");
 
 function Lantier(dbURL, opts) {
 	let session ;
+	opts = Object.assign({
+		adminMode: false,
+		log: false,
+		username: "",
+		password: ""
+	}, opts || {});
 
-	async function request(dbName, path, method, data) {
-		const req = requisition[method](`${dbURL}/${dbName}/${path}`);
+	const authURL = dbURL.replace(/:\/\//, `://${opts.username}:${opts.password}@`);
 
-		if (opts && opts.log)
-			console.log("req", session, `${dbURL}/${dbName}/${path}`, method);
+	async function request(dbName, path, method, data, adm) {
+		const host = adm !== false ? authURL : dbURL;
+		const req = requisition[method](`${host}/${dbName}/${path}`);
+
+		if (opts.log)
+			console.log("req", session, `${host}/${dbName}/${path}`, method);
 
 		if (session)
 			req.cookie("AuthSession", session);
@@ -43,12 +52,13 @@ function Lantier(dbURL, opts) {
 		},
 
 		login: async (name, password) => {
-			const response = await request(`_session`, "", "post", { name, password });
+			const response = await request(`_session`, "", "post", { name, password }, false);
 
-			session = response.cookies.AuthSession;
+			if (!opts.adminMode)
+				session = response.cookies.AuthSession;
 
 			return {
-				AuthSession: response.cookies.AuthSession,
+				AuthSession: response.cookies ? response.cookies.AuthSession : null,
 				response: response.body,
 				status: response.statusCode
 			};
@@ -56,10 +66,14 @@ function Lantier(dbURL, opts) {
 
 		session: async (AuthSession) => {
 			session = AuthSession;
-			const response = await request("_session", "", "get");
 
-			if (opts && opts.log)
-				console.log(response)
+			const response = await request("_session", "", "get", null, false);
+
+			if (opts.log)
+				console.log(response);
+
+			if (opts.adminMode)
+				session = undefined;
 
 			return {
 				AuthSession: session,
