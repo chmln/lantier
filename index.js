@@ -41,6 +41,7 @@ function Lantier(dbURL, opts) {
 			const dbObj =  Object.create({
 				req: (path, method, data) => request(dbName, path, method, data),
 				get: async docName => (await dbObj.req(docName, "get")).body,
+				getAll: async keys => (await dbObj.get(`_all_docs?include_docs=true` + keys ? `&keys=[${keys.join('","')}]` : "")).rows,
 				post: async doc => (await dbObj.req("", "post", doc)).body,
 				put: async (doc, docID) => (await dbObj.req(docID, "put", doc)).body,
 				del: async (_id, _rev) => (await dbObj.req(`${_id}?rev=${_rev}`, "delete")).body,
