@@ -42,7 +42,7 @@ function Lantier(dbURL, opts) {
 				req: (path, method, data) => request(dbName, path, method, data),
 				get: async docName => (await dbObj.req(docName, "get")).body,
 				getAll: async keys => {
-					const result = await dbObj.get(`_all_docs?include_docs=true` + keys ? `&keys=${JSON.stringify(keys)}` : "");
+					const result = await dbObj.get(`_all_docs?include_docs=true` + (keys ? `&keys=${JSON.stringify(keys)}` : ""));
 
 					if (result.rows) return result.rows;
 					else if (result.error) {
