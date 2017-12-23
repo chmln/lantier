@@ -42,12 +42,12 @@ function Lantier(dbURL, opts) {
 				req: (path, method, data) => request(dbName, path, method, data),
 				get: async docName => (await dbObj.req(docName, "get")).body,
 				getAll: async keys => {
-					const result = await dbObj.get(`_all_docs?include_docs=true` + keys ? `&keys=[${keys.join('","')}]` : "");
+					const result = await dbObj.get(`_all_docs?include_docs=true` + keys ? `&keys=${JSON.stringify(keys)}` : "");
 
 					if (result.rows) return result.rows;
-					else {
+					else if (result.error) {
 						opts.log && console.error(result)
-						throw new Error("Error fetching data")
+						throw new Error(`Error: ${result.error}, reason: ${result.reason}`)
 					}
 			},
 				post: async doc => (await dbObj.req("", "post", doc)).body,
