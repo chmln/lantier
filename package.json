@@ -2,7 +2,7 @@
   "name": "lantier",
   "version": "0.0.8",
   "description": "A lightweight couchdb client",
-  "main": "index.js",
+  "main": "dist/index.js",
   "author": "chmln",
   "license": "MIT",
   "repository": {
@@ -11,5 +11,6 @@
   },
   "dependencies": {
     "requisition": "latest"
-  }
+  },
+  "typings": "dist/index.d.ts"
 }
